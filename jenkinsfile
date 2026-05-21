@@ -40,7 +40,7 @@ pipeline {
             steps {
                 sh '''
                     npm install serve
-                    server -s build &
+                    snode_modules/serve -s build &
                     sleep 30
                     npx playwright test
                 '''
