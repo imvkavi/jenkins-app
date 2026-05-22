@@ -96,7 +96,9 @@ pipeline {
                 }
             }
             steps {
-                input message: '', ok: 'Yes. I want to deploy it to prod!'
+                timeout(time: 1, unit: 'MINUTES') {
+                    input message: 'Approval', ok: 'Yes. I want to deploy it to prod!'
+                }
             }
         }
 
