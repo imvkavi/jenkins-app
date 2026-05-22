@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        //NETLIFY_SITE_ID="53229d1a-4820-482e-b804-03b6a7319008"
+        NETLIFY_SITE_ID="53229d1a-4820-482e-b804-03b6a7319008"
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
     }
 
@@ -82,7 +82,8 @@ pipeline {
                    #npm install netlify-cli@20.1.1
                    node_modules/.bin/netlify --version
                    #echo "Deploying to site: $SITE_ID"
-                   npx netlify sites:create --name websitename --account-slug kavi --auth=$NETLIFY_AUTH_TOKEN
+                   npx netlify teams:list --auth=$NETLIFY_AUTH_TOKEN
+                   #npx netlify sites:create --name websitename --account-slug kavi --auth=$NETLIFY_AUTH_TOKEN
                    node_modules/.bin/netlify status
                    node_modules/.bin/netlify deploy --dir=build --prod
                 '''
