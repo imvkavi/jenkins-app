@@ -4,6 +4,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID="53229d1a-4820-482e-b804-03b6a7319008"
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        REACT_APP_VERSION = "1.0.$BUILD_ID"
     }
 
     stages {
@@ -70,29 +71,8 @@ pipeline {
             }
         }
 
-        stage('Deploy non-prod') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                   npm install netlify-cli@20.1.1 node-jq
-                   node_modules/.bin/netlify --version
-                   #echo "Deploying to non-prod: $SITE_ID"
-                   #node_modules/.bin/netlify status
-                   node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
-                '''
-                script {
-                    env.STAGING_SITE = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json", returnStdout: true)
-                    echo "staging url : $env.STAGING_SITE"
-                }
-            }
-        }
 
-        stage('staging E2E') {
+        stage('non prod deploy') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -101,11 +81,18 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = "$env.STAGING_SITE"
+                CI_ENVIRONMENT_URL = ""
             }
 
             steps {
                 sh '''
+                    npm install netlify-cli@20.1.1 node-jq
+                    node_modules/.bin/netlify --version
+                    #echo "Deploying to non-prod: $SITE_ID"
+                    #node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
+                    sleep 10
+                    CI_ENVIRONMENT_URL=$(node_modules/.bin/node-jq -r '.deploy_url' eploy-output.json)
                     npx playwright test --reporter=html
                 '''
             }
@@ -116,39 +103,22 @@ pipeline {
             }
         }
 
-        stage('Approval') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    input message: 'Approval', ok: 'Yes. I want to deploy it to prod!'
-                }
-            }
-        }
+        // stage('Approval') {
+        //     agent {
+        //         docker {
+        //             image 'node:18-alpine'
+        //             reuseNode true
+        //         }
+        //     }
+        //     steps {
+        //         timeout(time: 1, unit: 'MINUTES') {
+        //             input message: 'Approval', ok: 'Yes. I want to deploy it to prod!'
+        //         }
+        //     }
+        // }
 
-        stage('Deploy prod') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                   #npm install netlify-cli@20.1.1
-                   node_modules/.bin/netlify --version
-                   #echo "Deploying to site: $SITE_ID"
-                   #node_modules/.bin/netlify status
-                   node_modules/.bin/netlify deploy --dir=build --prod
-                '''
-            }
-        }
 
-        stage('prod E2E') {
+        stage('prod deploy') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -162,6 +132,12 @@ pipeline {
 
             steps {
                 sh '''
+                    #npm install netlify-cli@20.1.1
+                    node_modules/.bin/netlify --version
+                    #echo "Deploying to site: $SITE_ID"
+                    #node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod
+                    sleep 10
                     npx playwright test --reporter=html
                 '''
             }
