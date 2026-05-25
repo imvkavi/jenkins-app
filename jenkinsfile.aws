@@ -13,8 +13,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'aws-key', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                 sh '''
                     aws --version
-                    aws s3 ls
-                    aws s3 cp s3obj.txt s3://jenkawsbuck
+                    aws ecs register-task-definition --cli-input-json file://aws/nginx-taskdef.json
                 '''
             }
             }
