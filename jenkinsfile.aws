@@ -14,7 +14,7 @@ pipeline {
                 sh '''
                     aws --version
                     aws s3 ls
-                    aws cp s3obj.txt s3://jenkawsbuck
+                    aws s3 cp s3obj.txt s3://jenkawsbuck
                 '''
             }
             }
