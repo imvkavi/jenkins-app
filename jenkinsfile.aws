@@ -14,6 +14,7 @@ pipeline {
                 sh '''
                     aws --version
                     aws s3 ls
+                    aws cp s3obj.txt arn:aws:s3:::jenkawsbuck 
                 '''
             }
             }
