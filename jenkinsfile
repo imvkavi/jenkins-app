@@ -8,6 +8,11 @@ pipeline {
     }
 
     stages {
+        stage('docker') {
+            steps {
+                sh 'docker build -t playwright .'
+            }
+        }
         stage('Build') {
             agent {
                 docker {
@@ -46,27 +51,26 @@ pipeline {
                 }
                 
 
-                // stage('E2E') {
-                //     agent {
-                //         docker {
-                //             image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                //             reuseNode true
-                //         }
-                //     }
-                //     steps {
-                //         sh '''
-                //             npm install serve
-                //             node_modules/.bin/serve -s build &
-                //             sleep 10
-                //             npx playwright test --reporter=html
-                //         '''
-                //     }
-                //     post {
-                //         always {
-                //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright-HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                //         }
-                //     }
-                // }
+                stage('E2E') {
+                    agent {
+                        docker {
+                            image 'playwright'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            serve -s build &
+                            sleep 10
+                            npx playwright test --reporter=html
+                        '''
+                    }
+                    post {
+                        always {
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'E2E Report', reportTitles: '', useWrapperFileDirectly: true])
+                        }
+                    }
+                }
                 
             }
         }
@@ -75,7 +79,7 @@ pipeline {
         stage('non prod deploy') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'playwright'
                     reuseNode true
                 }
             }
@@ -86,13 +90,12 @@ pipeline {
 
             steps {
                 sh '''
-                    npm install netlify-cli@20.1.1 node-jq
-                    node_modules/.bin/netlify --version
+                    netlify --version
                     #echo "Deploying to non-prod: $SITE_ID"
                     #node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
+                    netlify deploy --dir=build --json > deploy-output.json
                     sleep 10
-                    CI_ENVIRONMENT_URL=$(node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json)
+                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy-output.json)
                     npx playwright test --reporter=html
                 '''
             }
@@ -121,7 +124,7 @@ pipeline {
         stage('prod deploy') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'playwright'
                     reuseNode true
                 }
             }
@@ -132,11 +135,10 @@ pipeline {
 
             steps {
                 sh '''
-                    #npm install netlify-cli@20.1.1
-                    node_modules/.bin/netlify --version
+                    netlify --version
                     #echo "Deploying to site: $SITE_ID"
                     #node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod
+                    netlify deploy --dir=build --prod
                     sleep 10
                     npx playwright test --reporter=html
                 '''
