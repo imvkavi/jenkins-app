@@ -122,34 +122,52 @@ pipeline {
         // }
 
 
-        stage('prod deploy') {
+        // stage('prod deploy') {
+        //     agent {
+        //         docker {
+        //             image 'playwright'
+        //             reuseNode true
+        //         }
+        //     }
+
+        //     environment {
+        //         CI_ENVIRONMENT_URL = "https://brilliant-profiterole-472d69.netlify.app"
+        //     }
+
+        //     steps {
+        //         sh '''
+        //             netlify --version
+        //             #echo "Deploying to site: $SITE_ID"
+        //             #node_modules/.bin/netlify status
+        //             netlify deploy --dir=build --prod
+        //             sleep 10
+        //             npx playwright test --reporter=html
+        //         '''
+        //     }
+        //     post {
+        //         always {
+        //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Prod Report', reportTitles: '', useWrapperFileDirectly: true])
+        //         }
+        //     }
+        // }
+
+        stage('AWS') {
             agent {
                 docker {
-                    image 'playwright'
+                    image 'amazon/aws-cli'
                     reuseNode true
+                    args "--entrypoint=''"
                 }
             }
-
-            environment {
-                CI_ENVIRONMENT_URL = "https://brilliant-profiterole-472d69.netlify.app"
-            }
-
             steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-key', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                 sh '''
-                    netlify --version
-                    #echo "Deploying to site: $SITE_ID"
-                    #node_modules/.bin/netlify status
-                    netlify deploy --dir=build --prod
-                    sleep 10
-                    npx playwright test --reporter=html
+                    aws --version
+                    aws s3 ls
+                    aws s3 sync build s3://jenkawsbuck
                 '''
-            }
-            post {
-                always {
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Prod Report', reportTitles: '', useWrapperFileDirectly: true])
                 }
             }
         }
-    
     }
 }
