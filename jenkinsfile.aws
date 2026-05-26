@@ -18,6 +18,10 @@ pipeline {
                 sh '''
                     aws --version
                     aws ecs register-task-definition --cli-input-json file://aws/nginx-taskdef.json
+                    aws ecs update-service \
+                            --cluster nginx-test-server-cluster \
+                            --service nginx-service \
+                            --task-definition nginx-test-taskdefinition:2
                 '''
             }
             }
