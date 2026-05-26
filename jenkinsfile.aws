@@ -18,14 +18,10 @@ pipeline {
                 sh '''
                     aws --version
                     #aws ecs register-task-definition --cli-input-json file://aws/nginx-taskdef.json
-                    aws ecs create-service \
+                    aws ecs update-service \
                             --cluster nginx-test-server-cluster \
-                            --service-name nginx-service \
-                            --task-definition nginx-test-taskdefinition:2 \
-                            --desired-count 1 \
-                            --launch-type FARGATE \
-                            --platform-version LATEST \
-                            --network-configuration 'awsvpcConfiguration={subnets=[subnet-12344321],securityGroups=[sg-12344321],assignPublicIp=ENABLED}' 
+                            --service nginx-service \
+                            --task-definition nginx-test-taskdefinition:4 
                 '''
             }
             }
