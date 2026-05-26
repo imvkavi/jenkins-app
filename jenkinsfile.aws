@@ -28,6 +28,7 @@ pipeline {
                     reuseNode true
                     args "--entrypoint=''"
                 }
+            }
             steps {
                 sh '''
                     docker build -t jenkinsapp.aws .
@@ -60,7 +61,7 @@ pipeline {
         //                     --task-definition nginx-test-taskdefinition:4 
         //         '''
         //     }
-        //     }
+        //     
         // }
     }
 }
