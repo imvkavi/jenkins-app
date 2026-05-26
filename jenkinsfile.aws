@@ -25,6 +25,7 @@ pipeline {
                             --desired-count 1 \
                             --launch-type FARGATE \
                             --platform-version LATEST \
+                            --network-configuration 'awsvpcConfiguration={subnets=[subnet-12344321],securityGroups=[sg-12344321],assignPublicIp=ENABLED}' 
                 '''
             }
             }
