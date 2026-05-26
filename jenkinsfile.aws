@@ -40,7 +40,7 @@ pipeline {
                 }
             }
             
-
+        }
         // stage('deploy to AWS') {
         //     agent {
         //         docker {
@@ -63,6 +63,7 @@ pipeline {
         //                     --service nginx-service \
         //                     --task-definition nginx-test-taskdefinition:4 
         //         '''
+        //         }
         //     }
         //     
         // }
