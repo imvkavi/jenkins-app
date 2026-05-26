@@ -29,14 +29,15 @@ pipeline {
                     args "-u root  -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
                 }
             }
-            steps {
-                sh '''
-                    docker build -t jenkinsapp.aws:$REACT_APP_VERSION .
-                    aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 926776802523.dkr.ecr.ap-south-1.amazonaws.com
-                    docker push 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp
-                '''
+            withCredentials([usernamePassword(credentialsId: 'aws-key', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                steps {
+                    sh '''
+                        docker build -t jenkinsapp.aws:$REACT_APP_VERSION .
+                        aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 926776802523.dkr.ecr.ap-south-1.amazonaws.com
+                        docker push 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp
+                    '''
+                }
             }
-        }
 
         // stage('deploy to AWS') {
         //     agent {
