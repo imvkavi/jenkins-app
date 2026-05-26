@@ -17,11 +17,14 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'aws-key', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                 sh '''
                     aws --version
-                    aws ecs register-task-definition --cli-input-json file://aws/nginx-taskdef.json
-                    aws ecs update-service \
+                    #aws ecs register-task-definition --cli-input-json file://aws/nginx-taskdef.json
+                    aws ecs create-service \
                             --cluster nginx-test-server-cluster \
-                            --service nginx-service \
-                            --task-definition nginx-test-taskdefinition:2
+                            --service-name nginx-service \
+                            --task-definition nginx-test-taskdefinition:2 \
+                            --desired-count 1 \
+                            --launch-type FARGATE \
+                            --platform-version LATEST \
                 '''
             }
             }
