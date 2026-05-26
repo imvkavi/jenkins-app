@@ -31,9 +31,10 @@ pipeline {
             }
             steps {
                 sh '''
-                    docker build -t jenkinsapp.aws .
+                    yum -y install docker jq
+                    docker build -t jenkinsapp.aws:$REACT_APP_VERSION .
                     aws ecr get-login-password | docker login --username AWS --password-stdin 926776802523.dkr.ecr.ap-south-1.amazonaws.com
-                    docker push 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp:$BUILD_ID
+                    docker push 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp
                 '''
             }
         }
