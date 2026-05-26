@@ -24,14 +24,13 @@ pipeline {
         stage('build docker image') {
             agent {
                 docker {
-                    image 'amazon/aws-cli'
+                    image 'aws-cli'
                     reuseNode true
                     args "-u root --entrypoint=''"
                 }
             }
             steps {
                 sh '''
-                    yum -y install docker jq
                     docker build -t jenkinsapp.aws:$REACT_APP_VERSION .
                     aws ecr get-login-password | docker login --username AWS --password-stdin 926776802523.dkr.ecr.ap-south-1.amazonaws.com
                     docker push 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp
@@ -42,7 +41,7 @@ pipeline {
         // stage('deploy to AWS') {
         //     agent {
         //         docker {
-        //             image 'amazon/aws-cli'
+        //             image 'aws-cli'
         //             reuseNode true
         //             args "--entrypoint=''"
         //         }
