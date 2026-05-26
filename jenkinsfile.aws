@@ -32,9 +32,9 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-key', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
-                        docker build -t 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp.aws:$REACT_APP_VERSION .
+                        docker build -t 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp:$REACT_APP_VERSION .
                         aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 926776802523.dkr.ecr.ap-south-1.amazonaws.com
-                        docker push 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp.aws:$REACT_APP_VERSION
+                        docker push 926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp:$REACT_APP_VERSION
                     '''
                 
                 }
