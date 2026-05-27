@@ -2,8 +2,8 @@
     "family": "nginx-test-taskdefinition",
     "containerDefinitions": [
         {
-            "name": "nginx-server",
-            "image": "nginx:1.30-alpine",
+            "name": "jenkinsapp",
+            "image": "926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp:1.0.63",
             "cpu": 1024,
             "memory": 1024,
             "portMappings": [

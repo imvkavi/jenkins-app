@@ -41,31 +41,32 @@ pipeline {
             }
             
         }
-        // stage('deploy to AWS') {
-        //     agent {
-        //         docker {
-        //             image 'aws-cli'
-        //             reuseNode true
-        //             args "--entrypoint=''"
-        //         }
-        //     }
 
-        //     environment{
-        //         AWS_DEFAULT_REGION = "ap-south-1"
-        //     }
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: 'aws-key', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-        //         sh '''
-        //             aws --version
-        //             aws ecs register-task-definition --cli-input-json file://aws/nginx-taskdef.json
-        //             aws ecs update-service \
-        //                     --cluster nginx-test-server-cluster \
-        //                     --service nginx-service \
-        //                     --task-definition nginx-test-taskdefinition:4 
-        //         '''
-        //         }
-        //     }
-        //     
-        // }
+        stage('deploy to AWS') {
+            agent {
+                docker {
+                    image 'aws-cli'
+                    reuseNode true
+                    args "--entrypoint=''"
+                }
+            }
+
+            environment{
+                AWS_DEFAULT_REGION = "ap-south-1"
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-key', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                sh '''
+                    aws --version
+                    TDEF_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/nginx-taskdef.json | jq '.revision')
+                    aws ecs update-service \
+                            --cluster nginx-test-server-cluster \
+                            --service nginx-service \
+                            --task-definition nginx-test-taskdefinition:$TDEF_VERSION
+                '''
+                }
+            }
+            
+        }
     }
 }
