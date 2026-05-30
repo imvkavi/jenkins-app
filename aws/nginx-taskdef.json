@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "jenkinsapp",
-            "image": "926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp:*APP_VERSION*",
+            "image": "926776802523.dkr.ecr.ap-south-1.amazonaws.com/jenkinsapp:@APP_VERSION@",
             "cpu": 1024,
             "memory": 1024,
             "portMappings": [
