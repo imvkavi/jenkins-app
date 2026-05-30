@@ -58,6 +58,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'aws-key', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                 sh '''
                     aws --version
+                    sed -i 's/*APP_VERSION*/$REACT_APP_VERSION' aws/nginx-taskdef.json
                     TDEF_VERSION=$(aws ecs register-task-definition --cli-input-json file://aws/nginx-taskdef.json | jq '.taskDefinition.revision')
                     aws ecs update-service \
                             --cluster nginx-test-server-cluster \
